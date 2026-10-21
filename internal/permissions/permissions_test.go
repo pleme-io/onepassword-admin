@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	op "github.com/1password/onepassword-sdk-go"
 )
 
 func TestTableCoversEverySDKBit(t *testing.T) {
@@ -121,5 +123,35 @@ func TestTeamsBundlesSatisfyClosure(t *testing.T) {
 	viewEdit := append(append([]string{}, TeamsBundles["view"]...), TeamsBundles["edit"]...)
 	if got := Validate(viewEdit); len(got) != 0 {
 		t.Fatalf("view+edit fails closure: %v", got)
+	}
+}
+
+func TestEveryBitMatchesTheSDKConstant(t *testing.T) {
+	want := map[string]uint32{
+		"read_items":           op.ReadItems,
+		"create_items":         op.CreateItems,
+		"reveal_item_password": op.RevealItemPassword,
+		"update_items":         op.UpdateItems,
+		"archive_items":        op.ArchiveItems,
+		"delete_items":         op.DeleteItems,
+		"update_item_history":  op.UpdateItemHistory,
+		"import_items":         op.ImportItems,
+		"export_items":         op.ExportItems,
+		"send_items":           op.SendItems,
+		"print_items":          op.PrintItems,
+		"manage_vault":         op.ManageVault,
+		"recover_vault":        op.RecoverVault,
+	}
+	if len(Table) != len(want) {
+		t.Fatalf("permissions.json has %d rows, the SDK table has %d", len(Table), len(want))
+	}
+	for _, p := range Table {
+		bit, ok := want[p.Name]
+		if !ok {
+			t.Fatalf("permissions.json names %q, which the SDK does not", p.Name)
+		}
+		if bit != p.Bit {
+			t.Fatalf("%s: permissions.json has %d, SDK constant is %d", p.Name, p.Bit, bit)
+		}
 	}
 }

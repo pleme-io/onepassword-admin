@@ -1,11 +1,11 @@
 package permissions
 
 import (
+	_ "embed"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
-
-	op "github.com/1password/onepassword-sdk-go"
 )
 
 type Permission struct {
@@ -15,35 +15,39 @@ type Permission struct {
 	Settable bool
 }
 
-var Table = []Permission{
-	{Name: "read_items", Bit: op.ReadItems, Settable: true},
-	{Name: "create_items", Bit: op.CreateItems, Requires: []string{"read_items"}, Settable: true},
-	{Name: "reveal_item_password", Bit: op.RevealItemPassword, Requires: []string{"read_items"}, Settable: true},
-	{Name: "update_items", Bit: op.UpdateItems, Requires: []string{"read_items", "reveal_item_password"}, Settable: true},
-	{Name: "archive_items", Bit: op.ArchiveItems, Requires: []string{"read_items", "reveal_item_password", "update_items"}, Settable: true},
-	{Name: "delete_items", Bit: op.DeleteItems, Requires: []string{"read_items", "reveal_item_password", "update_items"}, Settable: true},
-	{Name: "update_item_history", Bit: op.UpdateItemHistory, Requires: []string{"read_items", "reveal_item_password"}, Settable: true},
-	{Name: "import_items", Bit: op.ImportItems, Requires: []string{"read_items", "create_items"}, Settable: true},
-	{Name: "export_items", Bit: op.ExportItems, Requires: []string{"read_items", "reveal_item_password", "update_item_history"}, Settable: true},
-	{Name: "send_items", Bit: op.SendItems, Requires: []string{"read_items", "reveal_item_password", "update_item_history"}, Settable: true},
-	{Name: "print_items", Bit: op.PrintItems, Requires: []string{"read_items", "reveal_item_password", "update_item_history"}, Settable: true},
-	{Name: "manage_vault", Bit: op.ManageVault, Settable: true},
-	{Name: "recover_vault", Bit: op.RecoverVault},
+//go:embed permissions.json
+var raw []byte
+
+type document struct {
+	Permissions []struct {
+		Name     string   `json:"name"`
+		Bit      uint32   `json:"bit"`
+		Requires []string `json:"requires"`
+		Settable bool     `json:"settable"`
+	} `json:"permissions"`
+	TeamsBundles map[string][]string `json:"teams_bundles"`
 }
 
-var TeamsBundles = map[string][]string{
-	"view":   {"read_items", "reveal_item_password", "update_item_history"},
-	"edit":   {"create_items", "update_items", "archive_items", "delete_items", "import_items", "export_items", "send_items", "print_items"},
-	"manage": {"manage_vault"},
-}
+var Table []Permission
 
-var byName = func() map[string]Permission {
-	m := make(map[string]Permission, len(Table))
-	for _, p := range Table {
-		m[p.Name] = p
+var TeamsBundles map[string][]string
+
+func init() {
+	var d document
+	if err := json.Unmarshal(raw, &d); err != nil {
+		panic("permissions.json: " + err.Error())
 	}
-	return m
-}()
+	for _, p := range d.Permissions {
+		Table = append(Table, Permission{Name: p.Name, Bit: p.Bit, Requires: p.Requires, Settable: p.Settable})
+	}
+	TeamsBundles = d.TeamsBundles
+	byName = make(map[string]Permission, len(Table))
+	for _, p := range Table {
+		byName[p.Name] = p
+	}
+}
+
+var byName map[string]Permission
 
 func SettableNames() []string {
 	var out []string

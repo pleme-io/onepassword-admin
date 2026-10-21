@@ -161,9 +161,9 @@ func TestImportOfAForeignVaultNamesTheOwnershipRule(t *testing.T) {
 	resource.UnitTest(t, resource.TestCase{
 		ProtoV6ProviderFactories: f.factories(),
 		Steps: []resource.TestStep{
-			{Config: pinned+`resource "opadmin_vault" "a" { title = "x" }`},
+			{Config: pinned + `resource "opadmin_vault" "a" { title = "x" }`},
 			{
-				Config:        pinned+`resource "opadmin_vault" "a" { title = "x" }`,
+				Config:        pinned + `resource "opadmin_vault" "a" { title = "x" }`,
 				ResourceName:  "opadmin_vault.a",
 				ImportState:   true,
 				ImportStateId: "someone-elses",
