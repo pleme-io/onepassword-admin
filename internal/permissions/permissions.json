@@ -1,0 +1,137 @@
+{
+  "permissions": [
+    {
+      "bit": 32,
+      "name": "read_items",
+      "requires": [],
+      "settable": true
+    },
+    {
+      "bit": 128,
+      "name": "create_items",
+      "requires": [
+        "read_items"
+      ],
+      "settable": true
+    },
+    {
+      "bit": 16,
+      "name": "reveal_item_password",
+      "requires": [
+        "read_items"
+      ],
+      "settable": true
+    },
+    {
+      "bit": 64,
+      "name": "update_items",
+      "requires": [
+        "read_items",
+        "reveal_item_password"
+      ],
+      "settable": true
+    },
+    {
+      "bit": 256,
+      "name": "archive_items",
+      "requires": [
+        "read_items",
+        "reveal_item_password",
+        "update_items"
+      ],
+      "settable": true
+    },
+    {
+      "bit": 512,
+      "name": "delete_items",
+      "requires": [
+        "read_items",
+        "reveal_item_password",
+        "update_items"
+      ],
+      "settable": true
+    },
+    {
+      "bit": 1024,
+      "name": "update_item_history",
+      "requires": [
+        "read_items",
+        "reveal_item_password"
+      ],
+      "settable": true
+    },
+    {
+      "bit": 2097152,
+      "name": "import_items",
+      "requires": [
+        "read_items",
+        "create_items"
+      ],
+      "settable": true
+    },
+    {
+      "bit": 4194304,
+      "name": "export_items",
+      "requires": [
+        "read_items",
+        "reveal_item_password",
+        "update_item_history"
+      ],
+      "settable": true
+    },
+    {
+      "bit": 1048576,
+      "name": "send_items",
+      "requires": [
+        "read_items",
+        "reveal_item_password",
+        "update_item_history"
+      ],
+      "settable": true
+    },
+    {
+      "bit": 8388608,
+      "name": "print_items",
+      "requires": [
+        "read_items",
+        "reveal_item_password",
+        "update_item_history"
+      ],
+      "settable": true
+    },
+    {
+      "bit": 2,
+      "name": "manage_vault",
+      "requires": [],
+      "settable": true
+    },
+    {
+      "bit": 1,
+      "name": "recover_vault",
+      "requires": [],
+      "settable": false
+    }
+  ],
+  "sdk": "onepassword-sdk-go v0.4.1",
+  "source": "kinko",
+  "teams_bundles": {
+    "edit": [
+      "create_items",
+      "update_items",
+      "archive_items",
+      "delete_items",
+      "import_items",
+      "export_items",
+      "send_items",
+      "print_items"
+    ],
+    "manage": [
+      "manage_vault"
+    ],
+    "view": [
+      "read_items",
+      "reveal_item_password",
+      "update_item_history"
+    ]
+  }
+}
